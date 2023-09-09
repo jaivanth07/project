@@ -1,0 +1,128 @@
+/* Dark theme for the CNN page */
+
+/* Background color for the entire page */
+body {
+     background-color: #222;
+     color: #f0f0f0; /* Text color for the page */
+ }
+ 
+ /* Style for the topic section */
+ .topic-section {
+     text-align: center;
+     padding: 20px;
+ }
+ 
+ .topic-section h1 {
+     font-size: 2rem;
+     margin-bottom: 20px;
+     color: #00bcd4; /* Text color for the topic title */
+ }
+ 
+ /* Style for the step-by-step instructions */
+ .instructions h2 {
+     font-size: 1.5rem;
+     margin-top: 30px;
+     color: #0097a7; /* Color for step titles */
+ }
+ 
+ .instructions .code {
+     background-color: #333; /* Background color for code sections */
+     padding: 10px;
+     margin: 10px 0;
+     border-radius: 5px;
+     white-space: pre-wrap;
+     font-size: 1.1rem;
+     overflow-x: auto;
+ }
+ 
+ /* Style for the code editor-like section */
+ .code-editor .code {
+     background-color: #111; /* Dark background color for code editor */
+     color: #f0f0f0; /* Text color for code editor */
+     border: 1px solid #333; /* Border around code editor */
+     border-radius: 5px;
+     padding: 20px;
+     font-family: 'Courier New', monospace; /* Monospace font for code */
+     font-size: 1rem;
+     line-height: 1.4;
+     overflow-x: auto;
+     white-space: pre;
+ }
+ 
+ /* Style for links within the code */
+ .code-editor .code a {
+     color: #00bcd4; /* Link color within code editor */
+     text-decoration: none;
+     font-weight: bold;
+ }
+ 
+ /* Style for the code editor section title */
+ .code-editor h2 {
+     font-size: 1.2rem;
+     margin-top: 20px;
+     color: #0097a7; /* Color for section titles */
+ }
+ 
+ /* Style for the code editor-like section */
+ .code-editor {
+     margin-top: 30px;
+ }
+ 
+ /* Style for the navigation bar (same as other pages) */
+ .navbar {
+     background-color: #333;
+     padding: 10px 0;
+ }
+ 
+ /* Style for the container (same as other pages) */
+ .container {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     max-width: 1200px;
+     margin: 0 auto;
+     padding: 0 20px;
+ }
+ 
+ /* Style for the logo (same as other pages) */
+ .logo {
+     width: 50px;
+     height: auto;
+ }
+ 
+ /* Style for the navigation links (same as other pages) */
+ .nav-links {
+     list-style-type: none;
+     padding: 0;
+     display: flex;
+ }
+ 
+ .nav-links li {
+     margin-right: 20px;
+ }
+ 
+ .nav-links a {
+     text-decoration: none;
+     color: #fff;
+     font-weight: bold;
+     font-size: 1.2rem;
+     transition: color 0.3s ease;
+ }
+ 
+ .nav-links a:hover {
+     color: #00bcd4;
+ }
+ 
+ /* Style for the code editor section */
+ /* Add any additional styles for the code editor here */
+ 
+ /* Style for the footer (same as other pages) */
+ footer {
+     background-color: #222;
+     color: #fff;
+     text-align: center;
+     padding: 10px 0;
+ }
+ .p1 {
+    font-size: 20px;
+ }

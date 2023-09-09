@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Projects</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="about.css">
+ 
+    <link rel="stylesheet" type="text/css" href="rspt.css">
+
+    <!-- Link your CSS files here -->
+</head>
+<body>
+    <!-- Your navigation bar here -->
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <!-- Example navigation content -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content for the "Projects" page goes here -->
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="horizontal-card up">
+            <h3>About Me</h3>
+            <p>
+                I like coding a lot, I started with HTML, CSS, and basic JavaScript in 6th grade making simple websites. From 9th grade, I started Python with AI like CNN and machine learning.
+            </p>
+        </div>
+
+        <div class="horizontal-card down">
+            <h3>Skills</h3>
+            <p>
+                I can make image classifiers using Python with various techniques like CNN, pre-trained models, ensemble training, ANN, and RNN.
+            </p>
+        </div>
+
+        <div class="horizontal-card up">
+            <h3>Personal</h3>
+            <p>
+                I'm just another average 15-year-old, likes playing football and likes to code.
+            </p>
+        </div>
+
+        <div class="horizontal-card down">
+            <h3>Projects</h3>
+            <p>
+                I have made a lot of websites in the past and other projects which are <a href="projects.html" class="link">here</a>.
+            </p>
+        </div>
+    </section>
+
+
+    <!-- Your JavaScript and additional scripts here -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cards = document.querySelectorAll(".horizontal-card");
+    
+            setTimeout(function () {
+                cards.forEach(function (card, index) {
+                    setTimeout(function () {
+                        card.classList.add("show-card");
+                    }, index * 1500); // Adjust the delay between each card (in milliseconds)
+                });
+            }, 500); // Adjust the initial delay (in milliseconds)
+        });
+    </script>
+    
+</body>
+</html>

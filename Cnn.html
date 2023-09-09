@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNN Tutorial</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="build.css">
+    <link rel="stylesheet" type="text/css" href="Cnn.css">
+    <link rel="stylesheet" type="text/css" href="rspt.css">
+
+    
+    <!-- Include Prism.js and your selected plugins -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.css"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/themes/prism-okaidia.css">
+    
+    <!-- Your custom CSS styles -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>CNN Tutorial</h1>
+        <p class="p1">Learn how to create a Convolutional Neural Network (CNN) for image classification.</p>
+    </header>
+
+    <!-- Content Section -->
+    <main>
+        <!-- Step 1: Import Libraries -->
+        <section class="step">
+            <h2>Step 1: Import Libraries</h2>
+            <p class="p1">
+                In this step, we import the required libraries for our CNN project, including TensorFlow, ImageDataGenerator, and Matplotlib for visualization.
+            </p>
+            <pre><code class="language-python">
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import matplotlib.pyplot as plt
+
+# Define the root directory where your data is located
+data_dir = 'data'  # Replace with your data directory also if u get any uniscope error put a "r" in front of the path like r'desktop/code/image_Dataset'
+            </code></pre>
+        </section>
+
+        <!-- Step 2: Create Data Generators -->
+        <section class="step">
+            <h2>Step 2: Create Data Generators</h2>
+            <p class="p1">
+                In this step, we create an ImageDataGenerator to perform data augmentation and normalization on our training data. Data augmentation includes operations like rotation, zoom, and horizontal flip, which help improve model performance.
+            </p>
+            <pre><code class="language-python">
+# Create an ImageDataGenerator for data augmentation and normalization
+train_datagen = ImageDataGenerator(
+    rescale=1./255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    validation_split=0.2  # Split the data into training and validation sets
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 3: Load and Prepare Training Dataset -->
+        <section class="step">
+            <h2>Step 3: Load and Prepare Training Dataset</h2>
+            <p class="p1">
+                In this step, we load and prepare our training dataset using the previously created ImageDataGenerator. The dataset is loaded from the specified 'data_dir' with target size and batch size defined.
+            </p>
+            <pre><code class="language-python">
+# Load and prepare the training dataset
+train_generator = train_datagen.flow_from_directory(
+    data_dir,
+    target_size=(img_height, img_width),
+    batch_size=batch_size,
+    class_mode='sparse',  # For integer-encoded labels
+    subset='training'  # Specify that this is the training dataset
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 4: Load and Prepare Validation Dataset -->
+        <section class="step">
+            <h2>Step 4: Load and Prepare Validation Dataset</h2>
+            <p class="p1">
+                Similar to the training dataset, we load and prepare the validation dataset using the same ImageDataGenerator. This dataset is used to evaluate our model's performance during training.
+            </p>
+            <pre><code class="language-python">
+# Load and prepare the validation dataset
+validation_generator = train_datagen.flow_from_directory(
+    data_dir,
+    target_size=(img_height, img_width),
+    batch_size=batch_size,
+    class_mode='sparse',
+    subset='validation'  # Specify that this is the validation dataset
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 5: Create the CNN Model -->
+        <section class="step">
+            <h2>Step 5: Create the CNN Model</h2>
+            <p class="p1">
+                In this step, we define the architecture of our Convolutional Neural Network (CNN) model. We stack convolutional and pooling layers to extract features from images and flatten the output before feeding it to dense layers.
+            </p>
+            <pre><code class="language-python">
+# Create the CNN model
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(img_height, img_width, 3)),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(64, activation='relu'),
+    tf.keras.layers.Dense(len(train_generator.class_indices))  # Output layer with the number of classes
+])
+            </code></pre>
+        </section>
+
+        <!-- Step 6: Compile the Model -->
+        <section class="step">
+            <h2>Step 6: Compile the Model</h2>
+            <p class="p1">
+                After creating the model architecture, we compile it with an optimizer, loss function, and evaluation metric. This step configures the training process.
+            </p>
+            <pre><code class="language-python">
+# Compile the model
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+            </code></pre>
+        </section>
+
+        <!-- Step 7: Train the Model -->
+        <section class="step">
+            <h2>Step 7: Train the Model</h2>
+            <p class="p1">
+                With the model compiled, we train it using the training and validation datasets. We specify the number of training epochs to control how many times the model goes through the entire training dataset.
+            </p>
+            <pre><code class="language-python">
+# Train the model
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=10  # You can adjust the number of epochs as needed
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 8: Save the Model -->
+        <section class="step">
+            <h2>Step 8: Save the Model</h2>
+            <p class="p1">
+                Once the training is complete, we save the trained model to a file for future use or deployment.
+            </p>
+            <pre><code class="language-python">
+# Save the model
+model.save('cnn_model.h5')
+            </code></pre>
+        </section>
+
+        <!-- Step 9: Plot Training and Validation Accuracy -->
+        <section class="step">
+            <h2>Step 9: Plot Training and Validation Accuracy</h2>
+            <p class="p1">
+                To visualize the training process, we plot the training and validation accuracy over epochs using Matplotlib.
+            </p>
+            <pre><code class="language-python">
+# Plot the training and validation accuracy
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.legend()
+            </code></pre>
+        </section>
+
+        <!-- Step 10: Evaluate the Model -->
+        <section class="step">
+            <h2>Step 10: Evaluate the Model</h2>
+            <p class="p1">
+                After training, we evaluate the model's performance on the validation dataset to check how well it generalizes to new data.
+            </p>
+            <pre><code class="language-python">
+# Evaluate the model on the test dataset
+test_loss, test_acc = model.evaluate(validation_generator, verbose=2)
+print(f"Accuracy on Validation Dataset: {test_acc}")
+
+plt.subplot(1, 2, 2)
+plt.bar(['Validation'], [test_acc], color='skyblue', label='Validation Accuracy')
+plt.ylim([0, 1])
+plt.title('Validation Accuracy')
+plt.legend(loc='lower right')
+plt.show()
+            </code></pre>
+        </section>
+
+        <!-- Step 11: Load and Evaluate an Image -->
+        <section class="step">
+            <h2>Step 11: Load and Evaluate an Image</h2>
+            <p class="p1">
+                In this step, we load a trained model and use it to evaluate an input image. This demonstrates how to make predictions on new data.
+            </p>
+            <pre><code class="language-python">
+# Load the trained model
+model = tf.keras.models.load_model('cnn_model.h5')  <!-- Replace with the path to your saved model -->
+
+# Define the root directory where your data is located
+data_dir = 'data'  <!-- Replace with your data directory -->
+
+# Get a list of class names (subfolder names)
+class_names = sorted(os.listdir(data_dir))
+img_height = 180
+img_width = 180
+
+# Function to preprocess and evaluate an image
+def evaluate_image(input_image_path):
+    # Load the input image
+    img = image.load_img(input_image_path, target_size=(img_height, img_width))
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)  <!-- Add a batch dimension -->
+
+    # Preprocess the image (rescale and normalize)
+    img_array /= 255.0
+
+    # Evaluate the model on the input image
+    predictions = model.predict(img_array)
+
+    # Get the predicted class index
+    predicted_class_index = np.argmax(predictions)
+    
+    # Get the predicted class label based on the class_names list
+    predicted_class = class_names[predicted_class_index]
+
+    # Print the predicted class label and confidence score
+    console.log("Predicted Class: " + predicted_class);
+    console.log("Confidence Score: " + predictions[0][predicted_class_index]);
+</code></pre>
+        </section>
+    </main>
+
+    <!-- Initialize Prism.js -->
+    <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-python.min.js"></script>
+</body>
+</html>

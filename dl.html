@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning Tutorial</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="dl.css">
+    <link rel="stylesheet" type="text/css" href="rspt.css">
+
+    <!-- Include Prism.js and your selected plugins -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/themes/prism-okaidia.css">
+    
+    
+    <!-- Your custom CSS styles -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>Deep Learning Tutorial</h1>
+        <p>Learn how to train deep learning models for image classification.</p>
+    </header>
+    <!-- Content Section -->
+    <main>
+        <!-- Step 1: Import Libraries -->
+        <section class="step">
+            <h2>Step 1: Import Libraries</h2>
+            <p>
+                In this step, we start by importing essential libraries required for building and training deep learning models. These libraries include TensorFlow for the machine learning framework and specific modules such as <code>ImageDataGenerator</code> for data augmentation and various pre-trained neural network architectures.
+            </p>
+            <pre><code class="language-python">
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.applications import (
+    ResNet50, VGG16, VGG19, InceptionV3,
+    InceptionResNetV2, MobileNet, MobileNetV2,
+    DenseNet121, DenseNet201,
+    NASNetMobile, NASNetLarge,
+)
+            </code></pre>
+        </section>
+        <!-- Step 2: Define Dataset and Parameters -->
+        <section class="step">
+            <h2>Step 2: Define Dataset and Parameters</h2>
+            <p>
+                In this step, we define the path to your dataset using <code>data_dir</code>. This should be adjusted to your dataset directory.
+                We also set the image size (<code>img_size</code>) to (224, 224) and the batch size (<code>batch_size</code>) to 64.
+                Data augmentation parameters are defined in the <code>ImageDataGenerator</code>, including rescaling, rotation, width and height shifting, and horizontal flipping. We also specify the validation split as 20% of the data.
+            </p>
+            <pre><code class="language-python">
+# Define the path to your dataset
+data_dir = 'data'  # Adjust this path to your dataset directory
+# Define image size and batch size
+img_size = (224, 224)
+batch_size = 64
+# Create data generators for training and validation
+datagen = ImageDataGenerator(
+    rescale=1.0 / 255.0,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=True,
+    validation_split=0.2  # Adjust the validation split as needed
+)
+train_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='training'
+)
+validation_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='validation'
+)
+            </code></pre>
+        </section>
+        <!-- Step 3: Create Data Generators -->
+        <section class="step">
+            <h2>Step 3: Create Data Generators</h2>
+            <p>
+                In this step, we create data generators for both training and validation data. These generators will automatically preprocess and augment the data during training.
+                The <code>train_generator</code> and <code>validation_generator</code> objects are created using <code>ImageDataGenerator.flow_from_directory()</code>, specifying the target size, batch size, class mode, and subset (training or validation).
+            </p>
+            <pre><code class="language-python">
+# Create data generators for training and validation
+datagen = ImageDataGenerator(
+    rescale=1.0 / 255.0,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=True,
+    validation_split=0.2  # Adjust the validation split as needed
+)
+train_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='training'
+)
+validation_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='validation'
+)
+            </code></pre>
+        </section>
+        <!-- Step 4: Define the Number of Classes -->
+        <section class="step">
+            <h2>Step 4: Define the Number of Classes</h2>
+            <p>
+                We determine the number of classes by the length of <code>train_generator.class_indices</code>. This will be used to define the output layer of our deep learning model.
+            </p>
+            <pre><code class="language-python">
+# Define the number of classes
+num_classes = len(train_generator.class_indices)
+            </code></pre>
+        </section>
+        <!-- Step 5: Define Models to Train -->
+        <section class="step">
+            <h2>Step 5: Define Models to Train</h2>
+            <p>
+                In this step, we specify a list of deep learning models that we want to train. The selected models include InceptionV3, MobileNetV2, DenseNet121, DenseNet201, and NASNetLarge. You can adjust this list as needed.
+            </p>
+            <pre><code class="language-python">
+# Define a list of models to train
+models_to_train = [InceptionV3, MobileNetV2, DenseNet121, DenseNet201, NASNetLarge]
+            </code></pre>
+        </section>
+        <!-- Step 6: Train Models -->
+        <section class="step">
+            <h2>Step 6: Train Models</h2>
+            <p>
+                For each model specified in <code>models_to_train</code>, we create, compile, and train the model using the training and validation data generators. We also save each trained model for future use.
+            </p>
+            <pre><code class="language-python">
+# Train models
+for model_class in models_to_train:
+    # Create and compile the model
+    base_model = model_class(weights='imagenet', include_top=False)
+    x = base_model.output
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = tf.keras.layers.Dense(1024, activation='relu')(x)
+    predictions = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+    model = tf.keras.models.Model(inputs=base_model.input, outputs=predictions)
+    
+    # Freeze the pre-trained layers
+    for layer in base_model.layers:
+        layer.trainable = False
+    
+    # Compile the model
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    # Train the model
+    num_epochs = 10 # Adjust as needed
+    model.fit(
+        train_generator,
+        validation_data=validation_generator,
+        epochs=num_epochs,
+        verbose=2
+    )
+    
+    # Save the trained model
+    model.save(f'trained_{model_class.__name__}.h5')
+    console.log(f'Model {model_class.__name__} saved as trained_{model_class.__name__}.h5')
+            </code></pre>
+        </section>
+        <!-- Step 7: Evaluate Models (Optional) -->
+        <!-- Step 7: Evaluate Models (Optional) -->
+<section class="step">
+    <h2>Step 7: Evaluate Models (Optional)</h2>
+    <p>
+        If you want to evaluate the trained models, you can use the code provided. This code loads the trained models and makes predictions on sample images. It then combines predictions using majority voting and prints the final ensemble predictions.
+    </p>
+    <pre><code class="language-python">
+# Load the trained models
+model_filenames = [
+    'trained_DenseNet121.h5',
+    'trained_VGG16.h5',
+    'trained_DenseNet201.h5',
+    'trained_InceptionV3.h5',
+    'trained_MobileNetV2.h5'
+]
+
+models = []
+for filename in model_filenames:
+    model = load_model(filename)
+    models.append(model)
+
+# Define a mapping from class index to class name
+class_names = ['cloudy', 'rain', 'shine', 'sunrise']
+
+# Function to preprocess an image
+def preprocess_image(img_path):
+    img = image.load_img(img_path, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = preprocess_input(x)
+    return x
+
+# Load and preprocess your random images for testing
+image_paths = [
+    'path_to_cloudy_image.jpg',
+    'path_to_rain_image.jpg',
+    'path_to_shine_image.jpg'
+]
+
+# Replace the image paths with your own test images
+preprocessed_images = [preprocess_image(img_path) for img_path in image_paths]
+
+# Make predictions with each model
+predictions = []
+for model in models:
+    model_preds = model.predict(np.array(preprocessed_images))
+    predictions.append(model_preds)
+
+# Combine predictions using majority voting
+ensemble_predictions = np.argmax(np.sum(predictions, axis=0), axis=1)
+
+# Map class indices to class names
+ensemble_class_names = [class_names[i] for i in ensemble_predictions]
+
+# Print the final ensemble predictions
+for i, image_path in enumerate(image_paths):
+    print(f"Image: {image_path} - Predicted class name: {ensemble_class_names[i]}")
+    </code></pre>
+</section>
+
+    </main>
+    <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-python.min.js"></script>
+ 
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="ensemble.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.27.0/themes/prism-okaidia.css">
+    <link rel="stylesheet" type="text/css" href="rspt.css">
+
+    <title>Ensemble Tutorial</title>
+    <style>
+ 
+        pre {
+            background-color: #f9f9f9;
+           
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header>
+        <h1>Ensemble Training with Previously Built Models</h1>
+        <p>Learn how to combine all previously built models and predict images.</p>
+    </header>
+
+    <main>
+        <section class="step">
+            <h2>Step 1: Importing Libraries</h2>
+            <p>Import all the necessary libraries:</p>
+            <pre><code class="language-python">
+import os
+import numpy as np
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.models import load_model
+from IPython.display import Image, display
+            </code></pre>
+        </section>
+        
+        <section class="step">
+            <h2>Step 2: Defining Variables and Preprocessing the Image</h2>
+            <p>Define variables and preprocess the image:</p>
+            <pre><code class="language-python">
+class_labels = ['cloudy', 'rain', 'shine', 'sunrise']
+
+# Function to load and preprocess an image
+def load_and_preprocess_image(image_path):
+    img = load_img(image_path, target_size=(180, 180))  # Adjust target size as needed
+    img = img_to_array(img) / 255.0  # Normalize pixel values to [0, 1]
+    img = np.expand_dims(img, axis=0)
+    return img
+            </code></pre>
+        </section>
+
+        <section class="step">
+            <h2>Step 3: Listing the Models and Loading Them</h2>
+            <p>List all the models needed and load them:</p>
+            <pre><code class="language-python">
+# List of your model names
+model_names = ['trained_DenseNet121.h5', 'trained_DenseNet201.h5', 'trained_InceptionV3.h5', 'trained_MobileNetV2.h5', 'trained_VGG16.h5', 'cnn_model.h5']
+
+# Load your models
+models = [load_model(model_name) for model_name in model_names]
+            </code></pre>
+        </section>
+
+        <section class="step">
+            <h2>Step 4: Show Prediction</h2>
+            <p>Predict and display the prediction:</p>
+            <pre><code class="language-python">
+while True:
+    # Ask for an image file
+    image_path = input("Enter the path to an image file (or 'exit' to quit): ")
+
+    if image_path.lower() == 'exit':
+        break
+
+    if not os.path.isfile(image_path):
+        print("Invalid file path. Please try again.")
+        continue
+
+    # Load and preprocess the image
+    image = load_and_preprocess_image(image_path)
+
+    # Display the image
+    display(Image(filename=image_path))
+
+    # Display a simple interface with model name and prediction
+    print("\nModel Predictions:")
+    for i, model_name in enumerate(model_names):
+        predictions = models[i].predict(image)
+        predicted_class = class_labels[np.argmax(predictions)]
+        print(f"Model {i + 1} ({model_name}): Predicted Class: {predicted_class}")
+
+# End of the loop
+print("Testing finished.")
+            </code></pre>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-python.min.js"></script>
+</body>
+</html>

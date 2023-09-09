@@ -1,0 +1,56 @@
+/* CSS for the Contact page */
+.contact-section {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     margin-top: 50px;
+ }
+ 
+ .horizontal-card {
+     display: flex;
+     flex-direction: row;
+     background-color: #344a5848;
+     color: #FFFFFF;
+     padding: 20px;
+     border-radius: 10px;
+     margin-bottom: 10px;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+ }
+ 
+ .horizontal-card h3 {
+     font-size: 1.5rem;
+     margin-right: 10px;
+ }
+ 
+ .horizontal-card p {
+     font-size: 1.5rem;
+     margin-bottom: 10px;
+     align-items: center;
+     line-height: 100px;
+ }
+ 
+ .cta-button {
+     background-color: #02677469;
+     color: #FFFFFF;
+     border: none;
+     border-radius: 5px;
+     padding: 10px 20px;
+     font-size: 1.11rem;
+     text-decoration: none;
+     display: inline-block;
+     transition: background-color 0.2s;
+     cursor: pointer; /* Add cursor style to indicate interactivity */
+ }
+ 
+ .cta-button:hover {
+     background-color: #0097a7;
+ }
+
+ #b1 {
+     height: 30px;
+ }
+ 
+ #db {
+    height:50px
+ }

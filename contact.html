@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="contact.css">
+    <!-- Link your CSS files here -->
+    <link rel="stylesheet" type="text/css" href="rspt.css">
+
+</head>
+<body>
+    <!-- Your navigation bar here -->
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <!-- Example navigation content -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content for the "Contact" page goes here -->
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="horizontal-card up">
+            <h3>Instagram</h3>
+            <p></p>
+            <a href="https://www.instagram.com/zazza_wala" class="cta-button" id="b1">Follow</a>
+        </div>
+
+        <div class="horizontal-card down">
+            <h3>Discord</h3>
+            <button class="cta-button" id="db" onclick="copyToClipboard('mr.lover.lover')">mr.lover.lover</button>
+        </div>
+    </section>
+
+    <!-- Your JavaScript and additional scripts here -->
+    <script src="script.js"></script>
+    <script>
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            alert("Discord ID copied to clipboard: " + text);
+        }
+    </script>
+</body>
+</html>

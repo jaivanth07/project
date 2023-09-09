@@ -1,0 +1,1023 @@
+
+pytorch ^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Learning with TensorFlow</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="build.css">
+    <link rel="stylesheet" type="text/css" href="rspt.css">
+
+    <!-- Include Prism.js and your selected plugins -->
+   
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/themes/prism-okaidia.css">
+    <!-- Your custom CSS styles -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>Transfer Learning with TensorFlow</h1>
+        <p>Learn how to perform transfer learning using pre-trained models with TensorFlow.</p>
+    </header>
+
+    <!-- Content Section -->
+    <main>
+        <!-- Step 1: Import Libraries -->
+        <section class="step">
+            <h2>Step 1: Import Libraries</h2>
+            <p>
+                In this step, we import the necessary libraries, including TensorFlow, Matplotlib, and NumPy.
+            </p>
+            <pre><code class="language-python">
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import tensorflow as tf
+            </code></pre>
+        </section>
+
+        <!-- Step 2: Define Dataset and Data Augmentation -->
+        <section class="step">
+            <h2>Step 2: Define Dataset and Data Augmentation</h2>
+            <p>
+                Here, we define the path to our dataset, create data augmentation techniques, and set the batch size.
+            </p>
+            <pre><code class="language-python">
+# Define the path to your dataset folder
+data_dir = 'data'
+
+# Use data augmentation and preprocessing
+data_augmentation = tf.keras.Sequential([
+    tf.keras.layers.RandomFlip('horizontal'),
+    tf.keras.layers.RandomRotation(0.2),
+])
+
+# Define the batch size
+batch_size = 32
+            </code></pre>
+        </section>
+
+        <!-- Step 3: Create Data Generators -->
+        <section class="step">
+            <h2>Step 3: Create Data Generators</h2>
+            <p>
+                In this step, we create data generators for the training and validation sets. We apply rescaling and data augmentation to the images.
+            </p>
+            <pre><code class="language-python">
+# Create a data generator for your dataset
+datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+    rescale=1. / 255,
+    validation_split=0.2,
+    preprocessing_function=data_augmentation
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 4: Load and Prepare Dataset -->
+        <section class="step">
+            <h2>Step 4: Load and Prepare Dataset</h2>
+            <p>
+                We load and prepare the dataset using flow_from_directory for both the training and validation sets.
+            </p>
+            <pre><code class="language-python">
+# Load the dataset using flow_from_directory
+IMG_SIZE = (160, 160)
+train_dataset = datagen.flow_from_directory(
+    data_dir,
+    target_size=IMG_SIZE,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='training'
+)
+
+validation_dataset = datagen.flow_from_directory(
+    data_dir,
+    target_size=IMG_SIZE,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='validation'
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 5: Define Model Architecture -->
+        <section class="step">
+            <h2>Step 5: Define Model Architecture</h2>
+            <p>
+                In this step, we define our model architecture. We use the MobileNetV2 pre-trained model as the base and add a custom classification head.
+            </p>
+            <pre><code class="language-python">
+# Define your model architecture
+base_model = tf.keras.applications.MobileNetV2(
+    input_shape=IMG_SIZE + (3,),
+    include_top=False,
+    weights='imagenet'
+)
+
+# Add your classification head
+num_classes = 4  # Replace with your number of classes
+global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+x = global_average_layer(base_model.output)
+x = tf.keras.layers.Dropout(0.2)(x)
+outputs = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+
+# Create the final model
+model = tf.keras.Model(inputs=base_model.input, outputs=outputs)
+            </code></pre>
+        </section>
+
+        <!-- Step 6: Compile the Model -->
+        <section class="step">
+            <h2>Step 6: Compile the Model</h2>
+            <p>
+                Here, we compile the model with an optimizer, loss function, and evaluation metric.
+            </p>
+            <pre><code class="language-python">
+# Compile your model
+base_learning_rate = 0.0001
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+            </code></pre>
+        </section>
+
+        <!-- Step 7: Train the Model -->
+        <section class="step">
+            <h2>Step 7: Train the Model</h2>
+            <p>
+                We train the model with an initial number of epochs.
+            </p>
+            <pre><code class="language-python">
+# Training
+initial_epochs = 10
+history = model.fit(train_dataset,
+                    epochs=initial_epochs,
+                    validation_data=validation_dataset)
+            </code></pre>
+        </section>
+
+        <!-- Step 8: Evaluate the Model -->
+        <section class="step">
+            <h2>Step 8: Evaluate the Model</h2>
+            <p>
+                After training, we evaluate the model's performance on the validation dataset.
+            </p>
+            <pre><code class="language-python">
+# Evaluate the model on the test dataset
+test_loss, test_accuracy = model.evaluate(validation_dataset)
+print("Test Loss: {:.2f}".format(test_loss))
+print("Test Accuracy: {:.2f}%".format(test_accuracy * 100))
+            </code></pre>
+        </section>
+
+        <!-- Step 9: Fine-tuning (if needed) -->
+        <section class="step">
+            <h2>Step 9: Fine-tuning (if needed)</h2>
+            <p>
+                If necessary, you can fine-tune the model by unfreezing certain layers and training for additional epochs.
+            </p>
+            <pre><code class="language-python">
+# Fine-tuning (if needed)
+base_model.trainable = True
+fine_tune_at = 100
+for layer in base_model.layers[:fine_tune_at]:
+    layer.trainable = False
+
+fine_tune_epochs = 10
+total_epochs = initial_epochs + fine_tune_epochs
+
+model.compile(loss='categorical_crossentropy',
+              optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate / 10),
+              metrics=['accuracy'])
+
+history_fine = model.fit(train_dataset,
+                         epochs=total_epochs,
+                         initial_epoch=initial_epochs,
+                         validation_data=validation_dataset)
+
+# Test your model on the test dataset again
+test_loss, test_accuracy = model.evaluate(validation_dataset)
+print("Test Loss after fine-tuning: {:.2f}".format(test_loss))
+print("Test Accuracy after fine-tuning: {:.2f}%".format(test_accuracy * 100))
+            </code></pre>
+        </section>
+
+        <!-- Step 10: Make Predictions -->
+        <section class="step">
+            <h2>Step 10: Make Predictions</h2>
+            <p>
+                Finally, we make predictions on a batch of images and evaluate the model's performance.
+            </p>
+            <pre><code class="language-python">
+# Make predictions on a batch of images
+# Retrieve a batch of images from the validation set
+image_batch, label_batch = validation_dataset.as_numpy_iterator().next()
+
+# Get predictions from the model
+predictions = model.predict(image_batch)
+
+# Calculate predicted labels
+predicted_labels = np.argmax(predictions, axis=1)
+
+# Convert softmax predictions to class labels
+predicted_labels = np.argmax(predictions, axis=1)
+true_labels = np.argmax(label_batch, axis=1)
+
+print("Predicted Labels:", predicted_labels)
+print("True Labels:", true_labels)
+            </code></pre>
+        </section>
+    </main>
+    <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-python.min.js"></script>
+</body>
+</html>
+
+tensorflow ^^
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNN Tutorial</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="build.css">
+    <link rel="stylesheet" type="text/css" href="Cnn.css">
+    <link rel="stylesheet" href="rsp.css">
+
+    
+    <!-- Include Prism.js and your selected plugins -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.css"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/themes/prism-okaidia.css">
+    
+    <!-- Your custom CSS styles -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>CNN Tutorial</h1>
+        <p class="p1">Learn how to create a Convolutional Neural Network (CNN) for image classification.</p>
+    </header>
+
+    <!-- Content Section -->
+    <main>
+        <!-- Step 1: Import Libraries -->
+        <section class="step">
+            <h2>Step 1: Import Libraries</h2>
+            <p class="p1">
+                In this step, we import the required libraries for our CNN project, including TensorFlow, ImageDataGenerator, and Matplotlib for visualization.
+            </p>
+            <pre><code class="language-python">
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import matplotlib.pyplot as plt
+
+# Define the root directory where your data is located
+data_dir = 'data'  # Replace with your data directory also if u get any uniscope error put a "r" in front of the path like r'desktop/code/image_Dataset'
+            </code></pre>
+        </section>
+
+        <!-- Step 2: Create Data Generators -->
+        <section class="step">
+            <h2>Step 2: Create Data Generators</h2>
+            <p class="p1">
+                In this step, we create an ImageDataGenerator to perform data augmentation and normalization on our training data. Data augmentation includes operations like rotation, zoom, and horizontal flip, which help improve model performance.
+            </p>
+            <pre><code class="language-python">
+# Create an ImageDataGenerator for data augmentation and normalization
+train_datagen = ImageDataGenerator(
+    rescale=1./255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    validation_split=0.2  # Split the data into training and validation sets
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 3: Load and Prepare Training Dataset -->
+        <section class="step">
+            <h2>Step 3: Load and Prepare Training Dataset</h2>
+            <p class="p1">
+                In this step, we load and prepare our training dataset using the previously created ImageDataGenerator. The dataset is loaded from the specified 'data_dir' with target size and batch size defined.
+            </p>
+            <pre><code class="language-python">
+# Load and prepare the training dataset
+train_generator = train_datagen.flow_from_directory(
+    data_dir,
+    target_size=(img_height, img_width),
+    batch_size=batch_size,
+    class_mode='sparse',  # For integer-encoded labels
+    subset='training'  # Specify that this is the training dataset
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 4: Load and Prepare Validation Dataset -->
+        <section class="step">
+            <h2>Step 4: Load and Prepare Validation Dataset</h2>
+            <p class="p1">
+                Similar to the training dataset, we load and prepare the validation dataset using the same ImageDataGenerator. This dataset is used to evaluate our model's performance during training.
+            </p>
+            <pre><code class="language-python">
+# Load and prepare the validation dataset
+validation_generator = train_datagen.flow_from_directory(
+    data_dir,
+    target_size=(img_height, img_width),
+    batch_size=batch_size,
+    class_mode='sparse',
+    subset='validation'  # Specify that this is the validation dataset
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 5: Create the CNN Model -->
+        <section class="step">
+            <h2>Step 5: Create the CNN Model</h2>
+            <p class="p1">
+                In this step, we define the architecture of our Convolutional Neural Network (CNN) model. We stack convolutional and pooling layers to extract features from images and flatten the output before feeding it to dense layers.
+            </p>
+            <pre><code class="language-python">
+# Create the CNN model
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(img_height, img_width, 3)),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(64, activation='relu'),
+    tf.keras.layers.Dense(len(train_generator.class_indices))  # Output layer with the number of classes
+])
+            </code></pre>
+        </section>
+
+        <!-- Step 6: Compile the Model -->
+        <section class="step">
+            <h2>Step 6: Compile the Model</h2>
+            <p class="p1">
+                After creating the model architecture, we compile it with an optimizer, loss function, and evaluation metric. This step configures the training process.
+            </p>
+            <pre><code class="language-python">
+# Compile the model
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+            </code></pre>
+        </section>
+
+        <!-- Step 7: Train the Model -->
+        <section class="step">
+            <h2>Step 7: Train the Model</h2>
+            <p class="p1">
+                With the model compiled, we train it using the training and validation datasets. We specify the number of training epochs to control how many times the model goes through the entire training dataset.
+            </p>
+            <pre><code class="language-python">
+# Train the model
+history = model.fit(
+    train_generator,
+    validation_data=validation_generator,
+    epochs=10  # You can adjust the number of epochs as needed
+)
+            </code></pre>
+        </section>
+
+        <!-- Step 8: Save the Model -->
+        <section class="step">
+            <h2>Step 8: Save the Model</h2>
+            <p class="p1">
+                Once the training is complete, we save the trained model to a file for future use or deployment.
+            </p>
+            <pre><code class="language-python">
+# Save the model
+model.save('cnn_model.h5')
+            </code></pre>
+        </section>
+
+        <!-- Step 9: Plot Training and Validation Accuracy -->
+        <section class="step">
+            <h2>Step 9: Plot Training and Validation Accuracy</h2>
+            <p class="p1">
+                To visualize the training process, we plot the training and validation accuracy over epochs using Matplotlib.
+            </p>
+            <pre><code class="language-python">
+# Plot the training and validation accuracy
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.legend()
+            </code></pre>
+        </section>
+
+        <!-- Step 10: Evaluate the Model -->
+        <section class="step">
+            <h2>Step 10: Evaluate the Model</h2>
+            <p class="p1">
+                After training, we evaluate the model's performance on the validation dataset to check how well it generalizes to new data.
+            </p>
+            <pre><code class="language-python">
+# Evaluate the model on the test dataset
+test_loss, test_acc = model.evaluate(validation_generator, verbose=2)
+print(f"Accuracy on Validation Dataset: {test_acc}")
+
+plt.subplot(1, 2, 2)
+plt.bar(['Validation'], [test_acc], color='skyblue', label='Validation Accuracy')
+plt.ylim([0, 1])
+plt.title('Validation Accuracy')
+plt.legend(loc='lower right')
+plt.show()
+            </code></pre>
+        </section>
+
+        <!-- Step 11: Load and Evaluate an Image -->
+        <section class="step">
+            <h2>Step 11: Load and Evaluate an Image</h2>
+            <p class="p1">
+                In this step, we load a trained model and use it to evaluate an input image. This demonstrates how to make predictions on new data.
+            </p>
+            <pre><code class="language-python">
+# Load the trained model
+model = tf.keras.models.load_model('cnn_model.h5')  <!-- Replace with the path to your saved model -->
+
+# Define the root directory where your data is located
+data_dir = 'data'  <!-- Replace with your data directory -->
+
+# Get a list of class names (subfolder names)
+class_names = sorted(os.listdir(data_dir))
+img_height = 180
+img_width = 180
+
+# Function to preprocess and evaluate an image
+def evaluate_image(input_image_path):
+    # Load the input image
+    img = image.load_img(input_image_path, target_size=(img_height, img_width))
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)  <!-- Add a batch dimension -->
+
+    # Preprocess the image (rescale and normalize)
+    img_array /= 255.0
+
+    # Evaluate the model on the input image
+    predictions = model.predict(img_array)
+
+    # Get the predicted class index
+    predicted_class_index = np.argmax(predictions)
+    
+    # Get the predicted class label based on the class_names list
+    predicted_class = class_names[predicted_class_index]
+
+    # Print the predicted class label and confidence score
+    console.log("Predicted Class: " + predicted_class);
+    console.log("Confidence Score: " + predictions[0][predicted_class_index]);
+</code></pre>
+        </section>
+    </main>
+
+    <!-- Initialize Prism.js -->
+    <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-python.min.js"></script>
+</body>
+</html>
+
+cnn ^^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="contact.css">
+    <!-- Link your CSS files here -->
+    <link rel="stylesheet" href="rsp.css">
+
+</head>
+<body>
+    <!-- Your navigation bar here -->
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <!-- Example navigation content -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content for the "Contact" page goes here -->
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="horizontal-card up">
+            <h3>Instagram</h3>
+            <p></p>
+            <a href="https://www.instagram.com/zazza_wala" class="cta-button" id="b1">Follow</a>
+        </div>
+
+        <div class="horizontal-card down">
+            <h3>Discord</h3>
+            <button class="cta-button" id="db" onclick="copyToClipboard('mr.lover.lover')">mr.lover.lover</button>
+        </div>
+    </section>
+
+    <!-- Your JavaScript and additional scripts here -->
+    <script src="script.js"></script>
+    <script>
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            alert("Discord ID copied to clipboard: " + text);
+        }
+    </script>
+</body>
+</html>
+
+contact ^^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning Tutorial</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="dl.css">
+    <link rel="stylesheet" href="rsp.css">
+
+    <!-- Include Prism.js and your selected plugins -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/themes/prism-okaidia.css">
+    
+    
+    <!-- Your custom CSS styles -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>Deep Learning Tutorial</h1>
+        <p>Learn how to train deep learning models for image classification.</p>
+    </header>
+    <!-- Content Section -->
+    <main>
+        <!-- Step 1: Import Libraries -->
+        <section class="step">
+            <h2>Step 1: Import Libraries</h2>
+            <p>
+                In this step, we start by importing essential libraries required for building and training deep learning models. These libraries include TensorFlow for the machine learning framework and specific modules such as <code>ImageDataGenerator</code> for data augmentation and various pre-trained neural network architectures.
+            </p>
+            <pre><code class="language-python">
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.applications import (
+    ResNet50, VGG16, VGG19, InceptionV3,
+    InceptionResNetV2, MobileNet, MobileNetV2,
+    DenseNet121, DenseNet201,
+    NASNetMobile, NASNetLarge,
+)
+            </code></pre>
+        </section>
+        <!-- Step 2: Define Dataset and Parameters -->
+        <section class="step">
+            <h2>Step 2: Define Dataset and Parameters</h2>
+            <p>
+                In this step, we define the path to your dataset using <code>data_dir</code>. This should be adjusted to your dataset directory.
+                We also set the image size (<code>img_size</code>) to (224, 224) and the batch size (<code>batch_size</code>) to 64.
+                Data augmentation parameters are defined in the <code>ImageDataGenerator</code>, including rescaling, rotation, width and height shifting, and horizontal flipping. We also specify the validation split as 20% of the data.
+            </p>
+            <pre><code class="language-python">
+# Define the path to your dataset
+data_dir = 'data'  # Adjust this path to your dataset directory
+# Define image size and batch size
+img_size = (224, 224)
+batch_size = 64
+# Create data generators for training and validation
+datagen = ImageDataGenerator(
+    rescale=1.0 / 255.0,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=True,
+    validation_split=0.2  # Adjust the validation split as needed
+)
+train_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='training'
+)
+validation_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='validation'
+)
+            </code></pre>
+        </section>
+        <!-- Step 3: Create Data Generators -->
+        <section class="step">
+            <h2>Step 3: Create Data Generators</h2>
+            <p>
+                In this step, we create data generators for both training and validation data. These generators will automatically preprocess and augment the data during training.
+                The <code>train_generator</code> and <code>validation_generator</code> objects are created using <code>ImageDataGenerator.flow_from_directory()</code>, specifying the target size, batch size, class mode, and subset (training or validation).
+            </p>
+            <pre><code class="language-python">
+# Create data generators for training and validation
+datagen = ImageDataGenerator(
+    rescale=1.0 / 255.0,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=True,
+    validation_split=0.2  # Adjust the validation split as needed
+)
+train_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='training'
+)
+validation_generator = datagen.flow_from_directory(
+    data_dir,
+    target_size=img_size,
+    batch_size=batch_size,
+    class_mode='categorical',
+    subset='validation'
+)
+            </code></pre>
+        </section>
+        <!-- Step 4: Define the Number of Classes -->
+        <section class="step">
+            <h2>Step 4: Define the Number of Classes</h2>
+            <p>
+                We determine the number of classes by the length of <code>train_generator.class_indices</code>. This will be used to define the output layer of our deep learning model.
+            </p>
+            <pre><code class="language-python">
+# Define the number of classes
+num_classes = len(train_generator.class_indices)
+            </code></pre>
+        </section>
+        <!-- Step 5: Define Models to Train -->
+        <section class="step">
+            <h2>Step 5: Define Models to Train</h2>
+            <p>
+                In this step, we specify a list of deep learning models that we want to train. The selected models include InceptionV3, MobileNetV2, DenseNet121, DenseNet201, and NASNetLarge. You can adjust this list as needed.
+            </p>
+            <pre><code class="language-python">
+# Define a list of models to train
+models_to_train = [InceptionV3, MobileNetV2, DenseNet121, DenseNet201, NASNetLarge]
+            </code></pre>
+        </section>
+        <!-- Step 6: Train Models -->
+        <section class="step">
+            <h2>Step 6: Train Models</h2>
+            <p>
+                For each model specified in <code>models_to_train</code>, we create, compile, and train the model using the training and validation data generators. We also save each trained model for future use.
+            </p>
+            <pre><code class="language-python">
+# Train models
+for model_class in models_to_train:
+    # Create and compile the model
+    base_model = model_class(weights='imagenet', include_top=False)
+    x = base_model.output
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = tf.keras.layers.Dense(1024, activation='relu')(x)
+    predictions = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+    model = tf.keras.models.Model(inputs=base_model.input, outputs=predictions)
+    
+    # Freeze the pre-trained layers
+    for layer in base_model.layers:
+        layer.trainable = False
+    
+    # Compile the model
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    # Train the model
+    num_epochs = 10 # Adjust as needed
+    model.fit(
+        train_generator,
+        validation_data=validation_generator,
+        epochs=num_epochs,
+        verbose=2
+    )
+    
+    # Save the trained model
+    model.save(f'trained_{model_class.__name__}.h5')
+    console.log(f'Model {model_class.__name__} saved as trained_{model_class.__name__}.h5')
+            </code></pre>
+        </section>
+        <!-- Step 7: Evaluate Models (Optional) -->
+        <!-- Step 7: Evaluate Models (Optional) -->
+<section class="step">
+    <h2>Step 7: Evaluate Models (Optional)</h2>
+    <p>
+        If you want to evaluate the trained models, you can use the code provided. This code loads the trained models and makes predictions on sample images. It then combines predictions using majority voting and prints the final ensemble predictions.
+    </p>
+    <pre><code class="language-python">
+# Load the trained models
+model_filenames = [
+    'trained_DenseNet121.h5',
+    'trained_VGG16.h5',
+    'trained_DenseNet201.h5',
+    'trained_InceptionV3.h5',
+    'trained_MobileNetV2.h5'
+]
+
+models = []
+for filename in model_filenames:
+    model = load_model(filename)
+    models.append(model)
+
+# Define a mapping from class index to class name
+class_names = ['cloudy', 'rain', 'shine', 'sunrise']
+
+# Function to preprocess an image
+def preprocess_image(img_path):
+    img = image.load_img(img_path, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = preprocess_input(x)
+    return x
+
+# Load and preprocess your random images for testing
+image_paths = [
+    'path_to_cloudy_image.jpg',
+    'path_to_rain_image.jpg',
+    'path_to_shine_image.jpg'
+]
+
+# Replace the image paths with your own test images
+preprocessed_images = [preprocess_image(img_path) for img_path in image_paths]
+
+# Make predictions with each model
+predictions = []
+for model in models:
+    model_preds = model.predict(np.array(preprocessed_images))
+    predictions.append(model_preds)
+
+# Combine predictions using majority voting
+ensemble_predictions = np.argmax(np.sum(predictions, axis=0), axis=1)
+
+# Map class indices to class names
+ensemble_class_names = [class_names[i] for i in ensemble_predictions]
+
+# Print the final ensemble predictions
+for i, image_path in enumerate(image_paths):
+    print(f"Image: {image_path} - Predicted class name: {ensemble_class_names[i]}")
+    </code></pre>
+</section>
+
+    </main>
+    <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-python.min.js"></script>
+ 
+</html>
+
+
+dl^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Project Showcase</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <link rel="stylesheet" href="rsp.css">
+
+</head>
+<body>
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header class="dark-theme fade-in" id="home">
+        <!-- Header content goes here -->
+        <h1 class="hero-title">Welcome to My Project Showcase</h1>
+        <p class="hero-quote">"Exploring the world of Python coding with AI."</p>
+        <a href="projects.html" class="cta-button">Explore Projects</a>
+    </header>
+    <section class="dark-theme fade-in" id="about">
+        <!-- About section content goes here -->
+        <h2 class="section-title">About Me</h2>
+        <p>This is my website where I showcase my projects related to Python coding and AI. </p>
+        <a href="contact.html" class="cta-button">Contact Me</a>
+    </section>
+    <script src="script.js"></script>
+</body>
+</html>
+index ^^^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Projects</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="about.css">
+    <link rel="stylesheet" href="rsp.css">
+
+    <!-- Link your CSS files here -->
+</head>
+<body>
+    <!-- Your navigation bar here -->
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <!-- Example navigation content -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content for the "Projects" page goes here -->
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="horizontal-card up">
+            <h3>About Me</h3>
+            <p>
+                I like coding a lot, I started with HTML, CSS, and basic JavaScript in 6th grade making simple websites. From 9th grade, I started Python with AI like CNN and machine learning.
+            </p>
+        </div>
+
+        <div class="horizontal-card down">
+            <h3>Skills</h3>
+            <p>
+                I can make image classifiers using Python with various techniques like CNN, pre-trained models, ensemble training, ANN, and RNN.
+            </p>
+        </div>
+
+        <div class="horizontal-card up">
+            <h3>Personal</h3>
+            <p>
+                I'm just another average 15-year-old, likes playing football and likes to code.
+            </p>
+        </div>
+
+        <div class="horizontal-card down">
+            <h3>Projects</h3>
+            <p>
+                I have made a lot of websites in the past and other projects which are <a href="projects.html" class="link">here</a>.
+            </p>
+        </div>
+    </section>
+
+
+    <!-- Your JavaScript and additional scripts here -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cards = document.querySelectorAll(".horizontal-card");
+    
+            setTimeout(function () {
+                cards.forEach(function (card, index) {
+                    setTimeout(function () {
+                        card.classList.add("show-card");
+                    }, index * 1500); // Adjust the delay between each card (in milliseconds)
+                });
+            }, 500); // Adjust the initial delay (in milliseconds)
+        });
+    </script>
+    
+</body>
+</html>
+about  ^^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Your Own Weather Classification</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="build.css">
+    <link rel="stylesheet" href="rsp.css">
+ <!-- You can create a separate CSS file for this page -->
+</head>
+<body>
+    <!-- Your navigation bar here -->
+    <nav class="navbar">
+        <!-- Navbar content goes here -->
+        <!-- Example navigation content -->
+        <div class="container">
+            <a href="index.html"> <img src="logo.png" alt="Logo" class="logo"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content for the "Build Your Own" page goes here -->
+    <main>
+        <h1 class="section-title">Build Your Own Weather Classification Using:</h1>
+
+        <!-- Optional Topics -->
+        <section class="optional-topics">
+            <!-- CNN Topic -->
+            <div class="topic-card">
+                <a href="Cnn.html"><h2>CNN (Convolutional Neural Networks)</h2></a>
+                <!-- Include content or instructions for CNN here -->
+            </div>
+
+            <!-- Deep Learning Architecture Topic -->
+            <div class="topic-card">
+                <a href="dl.html"><h2>Deep Learning Architecture</h2></a>
+                <!-- Include content or instructions for Deep Learning Architecture here -->
+            </div>
+
+            <!-- Transfer Learning with TensorFlow Topic -->
+            <div class="topic-card">
+               
+               <a href="tensorflow.html"><h2>Transfer Learning with TensorFlow</h2></a>               <!-- Include content or instructions for Transfer Learning with TensorFlow here -->
+            </div>
+
+            <!-- Transfer Learning with PyTorch Topic -->
+            <div class="topic-card">
+               
+                <a href="pytorch.html"> <h2>Transfer Learning with PyTorch</h2></a>                <!-- Include content or instructions for Transfer Learning with PyTorch here -->
+            </div>
+
+            <!-- Ensemble Learning Topic -->
+            <div class="topic-card">
+
+                <a href="ensemble.html">                <h2>Ensemble Learning(includes all of the above to train )</h2></a>                <!-- Include content or instructions for Ensemble Learning here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Your JavaScript and additional scripts here -->
+    <script src="script.js"></script>
+</body>
+</html>
+
+build.html ^^

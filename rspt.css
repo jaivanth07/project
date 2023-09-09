@@ -1,0 +1,26 @@
+@media (max-width: 375px) and (max-height: 667px) {
+
+         /* Adjust the size, font, or any other styles for smaller screens */
+         /* CSS for your navbar */
+/* CSS for your navbar */
+.navbar {
+     width: 100vw; /* Set the width to 100% of the viewport width */
+     max-width: 100%; /* Ensure it doesn't exceed the screen width */
+     padding: 0; /* Remove padding if there is any */
+     margin: 0; /* Remove margins if there are any */
+     /* Your other styles for the navbar */
+     padding-bottom: 10px;
+ }
+.logo {
+     width: 0px;
+     height: auto;
+}
+.show-card {
+     width: 300px;
+     height: 300px;
+     text-align: center;
+}
+ 
+ 
+     
+ }
